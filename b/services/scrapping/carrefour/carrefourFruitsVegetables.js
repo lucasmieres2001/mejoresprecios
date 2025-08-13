@@ -2,7 +2,7 @@ const axios = require('axios');
 const { inferProductType } = require('../productType');
 
 exports.carrefourFruitsVegetables = async () => {
-  const url = 'https://www.carrefour.com.ar/_v/segment/graphql/v1';
+  const ruta = 'https://www.carrefour.com.ar/_v/segment/graphql/v1';
 
   const allProducts = [];
   const pageSize = 50; // número máximo que VTEX soporta sin errores
@@ -47,7 +47,7 @@ exports.carrefourFruitsVegetables = async () => {
       }
     };
 
-    const initialResponse = await axios.post(url, initialBody, {
+    const initialResponse = await axios.post(ruta, initialBody, {
       headers: {
         'Content-Type': 'application/json',
         'User-Agent': 'Mozilla/5.0'
@@ -73,7 +73,7 @@ exports.carrefourFruitsVegetables = async () => {
         }
       };
 
-      const pageResponse = await axios.post(url, pagedBody, {
+      const pageResponse = await axios.post(ruta, pagedBody, {
         headers: {
           'Content-Type': 'application/json',
           'User-Agent': 'Mozilla/5.0'
@@ -86,16 +86,17 @@ exports.carrefourFruitsVegetables = async () => {
 
     // Transformar a formato { title, price, img }
     const frutasVerdurasList = allProducts.map(products => {
+      const url = products.link;
       const title = products.productName?.trim();
       const price = products.items?.[0]?.sellers?.[0]?.commertialOffer?.Price;
       const img = products.items?.[0]?.images?.[0]?.imageUrl;
       const distributor = "carrefour";
       const product = inferProductType(title, "fruits")
-      return { title, price, img,distributor, product };
+      return { title, price, img,distributor, product, url };
     }).filter(p => p.title && p.price && p.img);
 
     //console.log('Productos de Carrefour obtenidos:', frutasVerdurasList);
-    //console.log(`Cantidad de productos: ${frutasVerdurasList.length} / ${total}`);
+    console.log(`Cantidad de productos verduras y frutas: ${frutasVerdurasList.length} / ${total}`);
 
     return { frutasVerduras: frutasVerdurasList };
 

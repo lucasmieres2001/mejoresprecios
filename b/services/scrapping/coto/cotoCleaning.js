@@ -2,7 +2,7 @@ const axios = require('axios');
 const { inferProductType } = require('../productType');
 
 exports.cotoCleaning = async () => {
-  const pageSize = 96; // Aumentamos para evitar múltiples requests innecesarias
+  const pageSize = 96;
   let offset = 0;
   let productos = [];
 
@@ -47,10 +47,16 @@ exports.cotoCleaning = async () => {
                 if (!productRecord?.attributes) continue;
 
                 const product = productRecord.attributes;
-
                 const title = product?.['product.displayName']?.[0] || 'Sin título';
                 const img = product?.['product.mediumImage.url']?.[0];
                 const dtoPriceRaw = product?.['sku.dtoPrice']?.[0];
+
+                // Tomar la URL desde detailsAction
+                let link = null;
+                const rawLink = productRecord?.detailsAction?.recordState;
+                if (rawLink) {
+                  link = `https://www.cotodigital.com.ar/sitios/cdigi/productos${rawLink.replace('?format=json', '')}`;
+                }
 
                 let price = null;
                 try {
@@ -64,8 +70,9 @@ exports.cotoCleaning = async () => {
                   title,
                   price,
                   img,
+                  url: link,
                   distributor: 'coto',
-                  product: inferProductType(title,'cleaning')
+                  product: inferProductType(title, 'cleaning')
                 });
 
                 foundProducts = true;
@@ -96,4 +103,3 @@ exports.cotoCleaning = async () => {
   console.log(`🔍 Total LIMPIEZA productos obtenidos de Coto: ${productos.length}`);
   return productos;
 };
-

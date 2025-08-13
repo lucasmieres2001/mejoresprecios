@@ -1,3 +1,5 @@
+
+
 const axios = require('axios');
 const { inferProductType } = require('../productType');
 
@@ -7,7 +9,7 @@ exports.cotoStore = async () => {
   let productos = [];
 
   while (true) {
-    const url = `https://www.cotodigital.com.ar/sitios/cdigi/categoria/catalogo-almac%C3%A9n/_/N-8pub5z?Nf=product.endDate%7CGTEQ%201.7545248E12%7C%7Cproduct.startDate%7CLTEQ%201.7545248E12&Nr=AND(product.sDisp_200:1004,product.language:espa%C3%B1ol,OR(product.siteId:CotoDigital))&No=${offset}&Nrpp=${pageSize}&format=json`;
+    const url = `https://www.cotodigital.com.ar/sitios/cdigi/categoria/catalogo-almac%C3%A9n/_/N-nityfw?Nf=product.endDate%7CGTEQ%201.7545248E12%7C%7Cproduct.startDate%7CLTEQ%201.7545248E12&Nr=AND(product.sDisp_200:1004,product.language:espa%C3%B1ol,OR(product.siteId:CotoDigital))&No=${offset}&Nrpp=${pageSize}&format=json`;
 
     console.log(`📄 Scrapeando página (offset: ${offset})`);
 
@@ -42,14 +44,21 @@ exports.cotoStore = async () => {
 
             for (const productGroup of records) {
               const groupRecords = productGroup.records || [];
+
               for (const productRecord of groupRecords) {
                 if (!productRecord?.attributes) continue;
 
                 const product = productRecord.attributes;
-
                 const title = product?.['product.displayName']?.[0] || 'Sin título';
                 const img = product?.['product.mediumImage.url']?.[0];
                 const dtoPriceRaw = product?.['sku.dtoPrice']?.[0];
+
+                // Tomar la URL desde detailsAction
+                let link = null;
+                const rawLink = productRecord?.detailsAction?.recordState;
+                if (rawLink) {
+                  link = `https://www.cotodigital.com.ar/sitios/cdigi/productos${rawLink.replace('?format=json', '')}`;
+                }
 
                 let price = null;
                 try {
@@ -63,8 +72,9 @@ exports.cotoStore = async () => {
                   title,
                   price,
                   img,
+                  url: link,
                   distributor: 'coto',
-                  product: inferProductType(title,"store")
+                  product: inferProductType(title, 'store')
                 });
 
                 foundProducts = true;
@@ -80,18 +90,18 @@ exports.cotoStore = async () => {
       }
 
       if (!foundProducts) {
-        console.log('✅ Fin de ALMACÉN. No hay más productos.');
+        console.log('✅ Fin de ALMACEN. No hay más productos.');
         break;
       }
 
       offset += pageSize;
 
     } catch (error) {
-      console.error('❌ Error ALMACÉN al obtener productos de Coto:', error.message);
+      console.error('❌ Error ALMACEN al obtener productos de Coto:', error.message);
       break;
     }
   }
 
-  console.log(`🔍 Total ALMACÉN productos obtenidos de Coto: ${productos.length}`);
+  console.log(`🔍 Total ALMACEN productos obtenidos de Coto: ${productos.length}`);
   return productos;
 };

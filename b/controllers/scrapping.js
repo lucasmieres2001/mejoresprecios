@@ -21,7 +21,7 @@ async function scrapeProductController(req, res) {
     //carrefour.push( await allCarrefourData());
     //dia.push( await allDiaData());
     //console.log(JSON.stringify(dia));
-      let test = await allNeneData();
+      let test = await allCotoData();
       fs.writeFileSync('debug_output.txt', JSON.stringify(test, null, 2)); // Formato legible
     console.timeEnd('Tiempo de recopilación de datos: ');
     
