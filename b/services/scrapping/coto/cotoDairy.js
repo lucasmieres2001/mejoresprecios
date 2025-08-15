@@ -7,7 +7,7 @@ exports.cotoDairy = async () => {
   let productos = [];
 // No=${offset}&Nrpp=${pageSize}
   while (true) {
-    const url = `https://www.cotodigital.com.ar/sitios/cdigi/categoria/catalogo-lacteos/_/N-nityfw?Nf=product.endDate|GTEQ 1.7545248E12||product.startDate|LTEQ 1.7545248E12&Nr=AND(product.sDisp_200:1004,product.language:español,OR(product.siteId:CotoDigital))&No=${offset}&Nrpp=${pageSize}&format=json`;
+    const url = `https://www.cotodigital.com.ar/sitios/cdigi/categoria/catalogo-lacteos/_/N-1d443r9?Nf=product.endDate|GTEQ 1.7545248E12||product.startDate|LTEQ 1.7545248E12&Nr=AND(product.sDisp_200:1004,product.language:español,OR(product.siteId:CotoDigital))&No=${offset}&Nrpp=${pageSize}&format=json`;
 
     console.log(`📄 Scrapeando página (offset: ${offset})`);
 
