@@ -1,9 +1,9 @@
 [
   {
-    "url": "https://www.dinoonline.com.arundefined",
+    "url": "https://www.dinoonline.com.ar/",
     "title": "VINO ROCKY MALBEC BOTELLA X 750CC.",
     "price": "5690.000000",
-    "img": "https://www.dinoonline.com.arundefined",
+    "img": "//statics.dinoonline.com.ar/imagenes/medium_150x150/3063737_m.jpg",
     "distributor": "mami"
   }
 ]

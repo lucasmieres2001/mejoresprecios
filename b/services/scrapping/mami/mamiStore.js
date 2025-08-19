@@ -1,5 +1,5 @@
 const jsonPrueba = require('./N-1500t13.json');
-
+//PARA SOLUCIONAR LA URL USA 3520014
 /**
  * @typedef {Object} Product
  * @property {string} url - La URL del producto.
@@ -21,12 +21,12 @@ exports.mamiStore = () => {
     // Extrae la información necesaria del objeto product
     const title = product.attributes['product.displayName']?.[0];
     const price = product.attributes['sku.activePrice']?.[0];
-    const productUrl = product.attributes['product.url']?.[0];
-    const imageUrl = product.attributes['product.mainImageUrl']?.[0];
+    const productUrl = product.detailsAction.recordState?.[0] //productRecord?.detailsAction?.recordState
+    const imageUrl = product.attributes['product.mediumImage.url']?.[0]
 
     // Construye las URLs completas (el host se asume en este caso)
     const fullUrl = `https://www.dinoonline.com.ar${productUrl}`;
-    const fullImg = `https://www.dinoonline.com.ar${imageUrl}`;
+    const fullImg = `${imageUrl}`;
     let test = {
       url: fullUrl,
       title: title,
