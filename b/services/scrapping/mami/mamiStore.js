@@ -1,48 +1,88 @@
-const jsonPrueba = require('./N-1500t13.json');
-//PARA SOLUCIONAR LA URL USA 3520014
-/**
- * @typedef {Object} Product
- * @property {string} url - La URL del producto.
- * @property {string} title - El título del producto.
- * @property {string} price - El precio del producto.
- * @property {string} img - La URL de la imagen del producto.
- * @property {string} distributor - El distribuidor, que es "mami".
- */
+const axios = require('axios');
+const { inferProductType } = require('../productType');
 
-/**
- * Procesa datos de productos desde un archivo JSON local.
- * @returns {Product[]} Un array de objetos de productos.
- */
-exports.mamiStore = () => {
-  // La ruta de los registros de productos es contents[0].MainCategoryContentN[3].records
-  const products = jsonPrueba.contents?.[0]?.MainCategoryContentN?.[3]?.records || [];
-
-  const formattedData = products.map(product => {
-    // Extrae la información necesaria del objeto product
-    const title = product.attributes['product.displayName']?.[0];
-    const price = product.attributes['sku.activePrice']?.[0];
-    const productUrl = product.detailsAction.recordState?.[0] //productRecord?.detailsAction?.recordState
-    const imageUrl = product.attributes['product.mediumImage.url']?.[0]
-
-    // Construye las URLs completas (el host se asume en este caso)
-    const fullUrl = `https://www.dinoonline.com.ar${productUrl}`;
-    const fullImg = `${imageUrl}`;
-    let test = {
-      url: fullUrl,
-      title: title,
-      price: price,
-      img: fullImg,
-      distributor: "mami",
+// Función auxiliar para encontrar records en cualquier MainCategoryContentN
+function extractRecords(data) {
+  const sections = data?.contents?.[0]?.MainCategoryContentN || [];
+  for (const section of sections) {
+    if (Array.isArray(section.records) && section.records.length > 0) {
+      return section.records;
     }
-    console.log(test)
-    return {
-      url: fullUrl,
-      title: title,
-      price: price,
-      img: fullImg,
-      distributor: "mami",
-    };
-  }).filter(item => item.title && item.price && item.url && item.img);
+  }
+  return [];
+}
 
-  return formattedData;
+exports.mamiStore = async () => {
+  const pageSize = 16;
+  let offset = 0;
+  let productos = [];
+  let slug = "almacen";
+  let code = "N-1tjm8rd";
+  let type = "store";
+
+  while (true) {
+    const url = `https://www.dinoonline.com.ar/super/categoria/supermami-${slug}/_/${code}?Nf=product.endDate|GTEQ+1.755216E12||product.startDate|LTEQ+1.755216E12&Nr=AND(product.disponible%3ADisponible%2Cproduct.language%3Aespa%C3%B1ol%2Cproduct.priceListPair%3AsalePrices_listPrices%2COR(product.siteId%3AsuperSite))&No=${offset}&Nrpp=${pageSize}&format=json`;
+
+    console.log(`📄 Scrapeando página (offset: ${offset})`);
+
+    try {
+      const res = await axios.get(url, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
+          'Referer': 'https://www.dinoonline.com.ar/',
+          'Accept-Language': 'es-AR,es;q=0.9',
+          'Accept': 'application/json'
+        }
+      });
+
+      const records = extractRecords(res.data);
+
+      if (records.length === 0) {
+        console.log(`✅ No hay más records en offset ${offset}. Cortando loop.`);
+        break;
+      }
+
+      for (const productRecord of records) {
+        if (!productRecord?.attributes) continue;
+
+        const product = productRecord.attributes;
+        const title = product?.['product.displayName']?.[0] || 'Sin título';
+        const img = product?.['product.mediumImage.url']?.[0];
+        const dtoPriceRaw = product?.['sku.dtoPrice']?.[0];
+
+        // Tomar la URL desde detailsAction
+        let link = null;
+        const rawLink = productRecord?.detailsAction?.recordState;
+        if (rawLink) {
+          link = `https://www.dinoonline.com.ar/super/producto${rawLink.replace('?format=json', '')}`;
+        }
+
+        let price = null;
+        try {
+          const parsedDto = JSON.parse(dtoPriceRaw);
+          price = parsedDto?.precioLista || parsedDto?.precio;
+        } catch (e) {
+          price = parseFloat(product?.['sku.activePrice']?.[0]) || null;
+        }
+
+        productos.push({
+          title,
+          price,
+          img,
+          url: link,
+          distributor: 'mami',
+          product: inferProductType(title, type)
+        });
+      }
+
+      offset += pageSize;
+
+    } catch (error) {
+      console.error('❌ Error '+slug+' al obtener productos de mami:', error.message);
+      break;
+    }
+  }
+
+  console.log(`🔍 Total ${slug} productos obtenidos de mami: ${productos.length}`);
+  return productos;
 };

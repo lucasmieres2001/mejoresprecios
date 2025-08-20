@@ -1,13 +1,24 @@
 const axios = require('axios');
 const { inferProductType } = require('../productType');
 
+// Función auxiliar para encontrar records en cualquier MainCategoryContentN
+function extractRecords(data) {
+  const sections = data?.contents?.[0]?.MainCategoryContentN || [];
+  for (const section of sections) {
+    if (Array.isArray(section.records) && section.records.length > 0) {
+      return section.records;
+    }
+  }
+  return [];
+}
+
 exports.mamiDairy = async () => {
-  const pageSize = 96;
+  const pageSize = 16;
   let offset = 0;
   let productos = [];
   let slug = "fresco-lacteos";
-  let code = "N-77sm4g"
-  let type = "dairy"
+  let code = "N-77sm4g";
+  let type = "dairy";
 
   while (true) {
     const url = `https://www.dinoonline.com.ar/super/categoria/supermami-${slug}/_/${code}?Nf=product.endDate|GTEQ+1.755216E12||product.startDate|LTEQ+1.755216E12&Nr=AND(product.disponible%3ADisponible%2Cproduct.language%3Aespa%C3%B1ol%2Cproduct.priceListPair%3AsalePrices_listPrices%2COR(product.siteId%3AsuperSite))&No=${offset}&Nrpp=${pageSize}&format=json`;
@@ -24,75 +35,44 @@ exports.mamiDairy = async () => {
         }
       });
 
-      const contents = res.data.contents || [];
-      let foundProducts = false;
-      let foundAnyRecords = false;
+      const records = extractRecords(res.data);
 
-      for (const content of contents) {
-        const main = content.Main || [];
+      if (records.length === 0) {
+        console.log(`✅ No hay más records en offset ${offset}. Cortando loop.`);
+        break;
+      }
 
-        for (const section of main) {
-          if (Array.isArray(section.contents)) {
-            const resultLists = section.contents.filter(c => c["@type"] === "Category_ResultsList");
+      for (const productRecord of records) {
+        if (!productRecord?.attributes) continue;
 
-            for (const resultList of resultLists) {
-              const records = resultList.records || [];
+        const product = productRecord.attributes;
+        const title = product?.['product.displayName']?.[0] || 'Sin título';
+        const img = product?.['product.mediumImage.url']?.[0];
+        const dtoPriceRaw = product?.['sku.dtoPrice']?.[0];
 
-              if (records.length > 0) {
-                foundAnyRecords = true;
-              }
-
-              for (const productGroup of records) {
-                const groupRecords = productGroup.records || [];
-
-                for (const productRecord of groupRecords) {
-                  if (!productRecord?.attributes) continue;
-
-                  const product = productRecord.attributes;
-                  const title = product?.['product.displayName']?.[0] || 'Sin título';
-                  const img = product?.['product.mediumImage.url']?.[0];
-                  const dtoPriceRaw = product?.['sku.dtoPrice']?.[0];
-
-                  // Tomar la URL desde detailsAction
-                  let link = null;
-                  const rawLink = productRecord?.detailsAction?.recordState;
-                  if (rawLink) {
-                    link = `https://www.dinoonline.com.ar/super/producto${rawLink.replace('?format=json', '')}`;
-                  }
-
-                  let price = null;
-                  try {
-                    const parsedDto = JSON.parse(dtoPriceRaw);
-                    price = parsedDto?.precioLista || parsedDto?.precio;
-                  } catch (e) {
-                    price = parseFloat(product?.['sku.activePrice']?.[0]) || null;
-                  }
-
-                  productos.push({
-                    title,
-                    price,
-                    img,
-                    url: link,
-                    distributor: 'mami',
-                    product: inferProductType(title, type)
-                  });
-
-                  foundProducts = true;
-                }
-              }
-            }
-          }
+        // Tomar la URL desde detailsAction
+        let link = null;
+        const rawLink = productRecord?.detailsAction?.recordState;
+        if (rawLink) {
+          link = `https://www.dinoonline.com.ar/super/producto${rawLink.replace('?format=json', '')}`;
         }
-      }
 
-      if (!foundAnyRecords) {
-        console.log(`✅ No hay más records. Cortando antes del error 500 en offset ${offset}.`);
-        break;
-      }
+        let price = null;
+        try {
+          const parsedDto = JSON.parse(dtoPriceRaw);
+          price = parsedDto?.precioLista || parsedDto?.precio;
+        } catch (e) {
+          price = parseFloat(product?.['sku.activePrice']?.[0]) || null;
+        }
 
-      if (!foundProducts) {
-        console.log('✅ Fin de '+slug+'. No hay más productos.');
-        break;
+        productos.push({
+          title,
+          price,
+          img,
+          url: link,
+          distributor: 'mami',
+          product: inferProductType(title, type)
+        });
       }
 
       offset += pageSize;

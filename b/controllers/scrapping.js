@@ -8,7 +8,7 @@ const {allJumboData} = require('../services/scrapping/jumbo/allJumboData');
 const {allEncomboData} = require('../services/scrapping/encombo/allencomboData');
 const {allNeneData} = require('../services/scrapping/elnene/allNeneData');
 const {allMamiData} = require('../services/scrapping/mami/allMamiData');
-const {mamiStore} = require('../services/scrapping/mami/mamiStore');
+const {allDiscoData} = require('../services/scrapping/disco/allDiscoData');
 
 
 async function scrapeProductController(req, res) {
@@ -23,7 +23,7 @@ async function scrapeProductController(req, res) {
     //carrefour.push( await allCarrefourData());
     //dia.push( await allDiaData());
     //console.log(JSON.stringify(dia));
-      let test = await mamiStore();
+      let test = await allDiscoData();
       fs.writeFileSync('debug_output.txt', JSON.stringify(test, null, 2)); // Formato legible
     console.timeEnd('Tiempo de recopilación de datos: ');
     
