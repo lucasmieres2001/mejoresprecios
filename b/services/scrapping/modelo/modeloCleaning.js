@@ -17,6 +17,8 @@ exports.modeloCleaning = async () => {
     let cursorObj = { x: 0, y: 0, z: `FalseSystem.Int32[]${categorySlug}` };
     let cursor = Buffer.from(JSON.stringify(cursorObj)).toString("base64");
 
+    let borrarEsto = "Solo es para probar";
+
     let isLastPage = false;
     let pageCount = 0;
 
