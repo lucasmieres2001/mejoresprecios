@@ -2,8 +2,8 @@ const axios = require("axios");
 const cheerio = require("cheerio");
 const { inferProductType } = require("../productType");
 
-exports.maxiconsumoTemplate = async () => {
-  const baseUrl = "https://maxiconsumo.com/sucursal_loma_hermosa/almacen.html";
+exports.maxiconsumoTemplate = async (slug,type) => {
+  const baseUrl = "https://maxiconsumo.com/sucursal_loma_hermosa/"+slug+".html";
   const productos = [];
   const seen = new Set(); // Para evitar duplicados
 
@@ -28,11 +28,17 @@ exports.maxiconsumoTemplate = async () => {
       const $ = cheerio.load(data);
 
       // 📌 Detectar cuántos productos hay en total (ej: "de 1652")
-      const toolbarText = $("#toolbar-amount").text().trim();
-      const match = toolbarText.match(/de\s+(\d+)/);
-      if (match) {
-        totalProductos = parseInt(match[1], 10);
-      }
+const toolbarText = $("#toolbar-amount").text().trim();
+const match = toolbarText.match(/de\s+(\d+)/);
+if (match) {
+  totalProductos = parseInt(match[1], 10);
+} else {
+  // Busca el último número del string (más seguro)
+  const numbers = toolbarText.match(/\d+/g);
+  if (numbers && numbers.length > 0) {
+    totalProductos = parseInt(numbers[numbers.length - 1], 10);
+  }
+}
 
       // 📌 Capturar productos
       const items = $("[id^=product-item-info]");
@@ -64,7 +70,7 @@ exports.maxiconsumoTemplate = async () => {
           img,
           url: link,
           distributor: "maxiconsumo",
-          product: inferProductType(title, "store"),
+          product: inferProductType(title, type),
         });
 
         productosProcesados++;

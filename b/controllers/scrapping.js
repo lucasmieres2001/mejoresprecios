@@ -11,7 +11,7 @@ const {allMamiData} = require('../services/scrapping/mami/allMamiData');
 const {allDiscoData} = require('../services/scrapping/disco/allDiscoData');
 const {allModeloData} = require('../services/scrapping/modelo/allModeloData');
 const {allAnonimaData} = require('../services/scrapping/anonima/allAnonimaData');
-const {maxiconsumoTemplate} = require('../services/scrapping/maxiconsumo/maxiconsumoTemplate');
+const {allMaxiconsumoData} = require('../services/scrapping/maxiconsumo/allMaxiconsumoData'); //Está construido, debemos probar
 
 
 async function scrapeProductController(req, res) {
@@ -21,19 +21,15 @@ async function scrapeProductController(req, res) {
     let data = {};
     let carrefour = [];
     let dia = [];
-    if (hostname.toLowerCase() === 'carrefour') {
       console.time('Tiempo de recopilación de datos: ');
     //carrefour.push( await allCarrefourData());
     //dia.push( await allDiaData());
     //console.log(JSON.stringify(dia));
-      let test = await maxiconsumoTemplate();
+      let test = await allMaxiconsumoData();
       fs.writeFileSync('debug_output.txt', JSON.stringify(test, null, 2)); // Formato legible
     console.timeEnd('Tiempo de recopilación de datos: ');
     
-    }
-    else {
-      return res.status(400).json({ error: 'Hostname no soportado' });
-    }
+    
     if (Object.keys(data).length > 0) {
       const saved = await saveScrapeProduct(data);
       saved
