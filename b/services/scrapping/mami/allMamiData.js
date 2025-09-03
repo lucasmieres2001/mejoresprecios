@@ -14,7 +14,7 @@ const allMamiData = async () => {
     let getMamiFruitsVegetables = await mamiFruitsVegetables();
     let getMamiStore = await mamiStore();
     let getMamiPets = await mamiPets();
-
+console.log("***************************FinMami*****************************************");
     return {
         mami: {
             dairy: getMamiDairy,

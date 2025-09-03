@@ -16,7 +16,7 @@ async function allEncomboData() {
         distributor: 'encombo',
         product: 'empty'
         }
-
+console.log("**************************FinCombo******************************************");
     return {
         encombo: {
             dairy: getEncomboDairy,

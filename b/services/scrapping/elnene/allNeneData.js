@@ -14,15 +14,17 @@ async function allNeneData () {
     const getNeneMeats = await neneMeats();
     const getNenePets = await nenePets();
     const getNeneStore = await neneStore();
-
+console.log("*************************FinNene*******************************************");
     return {
-        dairy: getNeneDairy,
-        drinks: getNeneDrinks,
-        store: getNeneStore,
-        meats: getNeneMeats,
-        fruitsVegetables: getNeneFruitsVegetables,
-        cleaning: getNeneCleaning,
-        pets: getNenePets
+        elnene: {
+            dairy: getNeneDairy,
+            drinks: getNeneDrinks,
+            store: getNeneStore,
+            meats: getNeneMeats,
+            fruitsVegetables: getNeneFruitsVegetables,
+            cleaning: getNeneCleaning,
+            pets: getNenePets
+        }
     }
 }
 

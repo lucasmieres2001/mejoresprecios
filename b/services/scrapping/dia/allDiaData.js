@@ -38,7 +38,7 @@ async function allDiaData() {
     console.timeEnd("  ⏳ Store");
 
     console.timeEnd("⏱ Total DIA scrape");
-
+    console.log("*****************************FinDIA******************************************");
     return {
         dia: {
             dairy: diaDairys,

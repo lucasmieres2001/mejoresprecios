@@ -1,7 +1,7 @@
 const axios = require("axios");
 const { inferProductType } = require("../productType");
 
-exports.discoTemplate = async (slug, tipo) => {
+exports.veaTemplate = async (slug, tipo) => {
   try {
     const chunkSize = 50;
     let from = 0;
@@ -12,7 +12,7 @@ exports.discoTemplate = async (slug, tipo) => {
 
     while (from <= maxFrom && allProducts.length < maxProducts) {
       let to = Math.min(from + chunkSize - 1, maxFrom);
-      const url = `https://www.disco.com.ar/api/catalog_system/pub/products/search/${slug}?_from=${from}&_to=${to}`;
+      const url = `https://www.vea.com.ar/api/catalog_system/pub/products/search/${slug}?_from=${from}&_to=${to}`;
       try {
         const { data } = await axios.get(url, {
           headers: { "User-Agent": "Mozilla/5.0" }
@@ -36,7 +36,7 @@ exports.discoTemplate = async (slug, tipo) => {
               title,
               price,
               img,
-              distributor: "disco",
+              distributor: "vea",
               product: inferProductType(title, tipo)
             });
             nuevos++;
@@ -55,7 +55,7 @@ exports.discoTemplate = async (slug, tipo) => {
           break;
         }
 
-        console.log(`📥 Obtenidos ${allProducts.length} productos de disco "${tipo}" hasta ahora`);
+        console.log(`📥 Obtenidos ${allProducts.length} productos de vea "${tipo}" hasta ahora`);
         from += chunkSize;
         await new Promise(res => setTimeout(res, 800)); // Delay
       } catch (err) {
@@ -70,11 +70,11 @@ exports.discoTemplate = async (slug, tipo) => {
       }
     }
 
-    console.log(`✅ disco ${tipo}: ${allProducts.length} productos obtenidos`);
+    console.log(`✅ vea ${tipo}: ${allProducts.length} productos obtenidos`);
     return allProducts;
 
   } catch (err) {
-    console.error(`Error en disco ${tipo}:`, err.message);
+    console.error(`Error en vea ${tipo}:`, err.message);
     return [];
   }
 };

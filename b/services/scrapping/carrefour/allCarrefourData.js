@@ -1,19 +1,14 @@
-const { carrefourDairy} = require('./carrefourDairy');
-const { carrefourDrinks } = require('./carrefourDrinks');
-const { carrefourStore } = require('./carrefourStore');
-const { carrefourMeats } = require('./carrefourMeats');
-const { carrefourFruitsVegetables } = require('./carrefourFruitsVegetables');
-const { carrefourCleaning } = require('./carrefourCleaning');
-const { carrefourPets } = require('./carrefourPets');
+const {carrefourTemplate} = require("./carrefourTemplate");
 
 async function allCarrefourData() {
-    let getCarrefourDairy = await carrefourDairy();
-    let getCarrefourDrinks = await carrefourDrinks();
-    let getCarrefourStore = await carrefourStore();
-    let getCarrefourMeats = await carrefourMeats();
-    let getCarrefourFruitsVegetables = await carrefourFruitsVegetables();
-    let getCarrefourCleaning = await carrefourCleaning();
-    let getCarrefourPets = await carrefourPets();
+    let getCarrefourDairy = await carrefourTemplate('Lacteos-y-productos-frescos','dairy');
+    let getCarrefourDrinks = await carrefourTemplate('Bebidas','drinks');
+    let getCarrefourStore = await carrefourTemplate('Almacen','store');
+    let getCarrefourMeats = await carrefourTemplate('Carnes-y-Pescados','meats');
+    let getCarrefourFruitsVegetables = await carrefourTemplate('Frutas-y-Verduras','fruits');
+    let getCarrefourCleaning = await carrefourTemplate('Limpieza','cleaning');
+    let getCarrefourPets = await carrefourTemplate('Mascotas','pets');
+    console.log("**************************FinCarrefour******************************************");
     return {
         carrefour: {
             dairy: getCarrefourDairy,

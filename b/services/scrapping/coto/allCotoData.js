@@ -14,6 +14,7 @@ async function allCotoData() {
     let getCotoFruitsVegetables = await cotoFruitsVegetables();
     let getCotoCleaning = await cotoCleaning();
     let getCotoPets = await cotoPets();
+    console.log("****************************FinCoto****************************************");
     return {
         coto: {
             dairy: getCotoDairy,

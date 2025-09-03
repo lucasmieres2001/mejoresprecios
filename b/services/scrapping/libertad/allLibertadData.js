@@ -16,6 +16,7 @@ async function allLibertadData () {
     let getLibertadPets = await libertadPets();
     
     return {
+        libertad: {
         dairy: getLibertadDairy,
         drinks: getLibertadDrinks,
         store: getLibertadStore,
@@ -23,6 +24,7 @@ async function allLibertadData () {
         fruitsVegetables: getLibertadFruitsVegetables,
         cleaning: getLibertadCleaning,
         pets: getLibertadPets
+        }
     }
 }
 

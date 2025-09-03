@@ -2,14 +2,13 @@ const {discoTemplate} = require('./discoTemplate');
 
 
 async function allDiscoData () {
-    let getDiscoDairy = await discoTemplate("dairy","7");
-    let getDiscoDrinks = await discoTemplate("drinks","2");
-    let getDiscoMeats = await discoTemplate("meats","4");
-    let getDiscoCleaning = await discoTemplate("cleaning","13");
-    let getDiscoFruitsVegetables = await discoTemplate("fruits", "3");
-    let getDiscoPets = await discoTemplate("pets","14");
-    let getDiscoStore = await discoTemplate("store","1");
-
+    let getDiscoDairy = await discoTemplate("lacteos","dairy");
+    let getDiscoDrinks = await discoTemplate("bebidas","drinks");
+    let getDiscoMeats = await discoTemplate("carnes","meats");
+    let getDiscoCleaning = await discoTemplate("limpieza","cleaning");
+    let getDiscoFruitsVegetables = await discoTemplate("frutas-y-verduras", "fruits");
+    let getDiscoPets = await discoTemplate("mascotas","pets");
+    let getDiscoStore = await discoTemplate("almacen","store");
     return{
         disco: {
             dairy: getDiscoDairy,

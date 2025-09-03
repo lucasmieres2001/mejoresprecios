@@ -1,4 +1,4 @@
-const { allCarrefourData } = require('../scrapping/carrefour/allCarrefourData');
+const {allCarrefourData} = require("../scrapping/carrefour/allCarrefourData");
 const { allDiaData } = require('../scrapping/dia/allDiaData');
 const {allVeaData} = require('../scrapping/vea/allVeaData');
 const {allCotoData} = require('../scrapping/coto/allCotoData');
@@ -10,11 +10,13 @@ const {allDiscoData} = require('../scrapping/disco/allDiscoData');
 const {allModeloData} = require('../scrapping/modelo/allModeloData');
 const {allAnonimaData} = require('../scrapping/anonima/allAnonimaData');
 const {allMaxiconsumoData} = require('../scrapping/maxiconsumo/allMaxiconsumoData'); //Está construido, debemos probar
+const { allMasData } = require("./mas/allMasData");
 
-exports.getAllArticles = async (req, res) => {
+exports.getAllArticles = async () => {
   try {
-    const [carrefour, dia, vea, coto, jumbo, encombo, nene, mami, disco, modelo, anonima, maxiconsumo] = await Promise.all([
+     return await Promise.all([
       allCarrefourData(),
+      allMasData(),
       allDiaData(),
       allVeaData(),
       allCotoData(),
@@ -28,24 +30,9 @@ exports.getAllArticles = async (req, res) => {
       allMaxiconsumoData()
     ]);
 
-    const allArticles = [
-      ...carrefour,
-      ...dia,
-      ...vea,
-      ...coto,
-      ...jumbo,
-      ...encombo,
-      ...nene,
-      ...mami,
-      ...disco,
-      ...modelo,
-      ...anonima,
-      ...maxiconsumo
-    ];
-
-    res.status(200).json(allArticles);
+  
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error al obtener los artículos' });
+    throw new Error('Error al obtener los artículos');
   }
 };
