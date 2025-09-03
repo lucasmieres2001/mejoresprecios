@@ -2,6 +2,8 @@ const axios = require("axios");
 const { inferProductType } = require("../productType");
 
 exports.carrefourTemplate = async (slug, tipo) => {
+  const dominio = "https://www.carrefour.com.ar";
+  const distribuidor = "carrefour";
   try {
     const chunkSize = 50;
     let from = 0;
@@ -12,9 +14,9 @@ exports.carrefourTemplate = async (slug, tipo) => {
 
     while (from <= maxFrom && allProducts.length < maxProducts) {
       let to = Math.min(from + chunkSize - 1, maxFrom);
-      const url = `https://www.carrefour.com.ar/api/catalog_system/pub/products/search/${slug}?_from=${from}&_to=${to}`;
+      const ruta = `${dominio}/api/catalog_system/pub/products/search/${slug}?_from=${from}&_to=${to}`;
       try {
-        const { data } = await axios.get(url, {
+        const { data } = await axios.get(ruta, {
           headers: { "User-Agent": "Mozilla/5.0" }
         });
 
@@ -26,18 +28,43 @@ exports.carrefourTemplate = async (slug, tipo) => {
         let nuevos = 0;
         for (const product of data) {
           const item = product.items?.[0];
-          const price = item?.sellers?.[0]?.commertialOffer?.Price;
+          const commertialOffer = item?.sellers?.[0]?.commertialOffer;
+          let price = commertialOffer?.Price;
+          if (
+            commertialOffer?.PriceWithoutDiscount &&
+            commertialOffer.PriceWithoutDiscount < commertialOffer.Price
+          ) {
+            price = commertialOffer.PriceWithoutDiscount;
+          }
           const img = item?.images?.[0]?.imageUrl;
           const title = product.productName;
+
+          // Capturar tipo de descuento si existe
+          let discountType = null;
+          if (commertialOffer?.DiscountHighLight?.length) {
+            // Si es un objeto, intenta extraer el valor del campo correcto
+            const raw = commertialOffer.DiscountHighLight[0];
+            if (typeof raw === "object" && raw["<Name>k__BackingField"]) {
+              discountType = raw["<Name>k__BackingField"];
+            } else if (typeof raw === "string") {
+              discountType = raw;
+            }
+          }
+          if (commertialOffer?.teasers?.length) {
+            discountType = commertialOffer.teasers[0]?.name || commertialOffer.teasers[0]?.description || discountType;
+          }
 
           if (!seenIds.has(product.productId) && price && img && title) {
             seenIds.add(product.productId);
             allProducts.push({
               title,
               price,
+              discountType, // <-- aquí se agrega el tipo de descuento si existe
               img,
-              distributor: "carrefour",
-              product: inferProductType(title, tipo)
+              url: `${dominio}/${product.linkText}/p`,
+              distributor: distribuidor,
+              product: inferProductType(title, tipo),
+              
             });
             nuevos++;
           }
@@ -55,7 +82,7 @@ exports.carrefourTemplate = async (slug, tipo) => {
           break;
         }
 
-        console.log(`📥 Obtenidos ${allProducts.length} productos de Carrefour "${tipo}" hasta ahora`);
+        console.log(`📥 Obtenidos ${allProducts.length} productos de ${distribuidor} "${tipo}" hasta ahora`);
         from += chunkSize;
         await new Promise(res => setTimeout(res, 800)); // Delay
       } catch (err) {
@@ -70,11 +97,11 @@ exports.carrefourTemplate = async (slug, tipo) => {
       }
     }
 
-    console.log(`✅ Carrefour ${tipo}: ${allProducts.length} productos obtenidos`);
+    console.log(`✅ ${distribuidor} ${tipo}: ${allProducts.length} productos obtenidos`);
     return allProducts;
 
   } catch (err) {
-    console.error(`Error en Carrefour ${tipo}:`, err.message);
+    console.error(`Error en ${distribuidor} ${tipo}:`, err.message);
     return [];
   }
 };

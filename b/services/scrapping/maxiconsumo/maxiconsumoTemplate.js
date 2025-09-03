@@ -6,7 +6,7 @@ exports.maxiconsumoTemplate = async (slug,type) => {
   const baseUrl = "https://maxiconsumo.com/sucursal_loma_hermosa/"+slug+".html";
   const productos = [];
   const seen = new Set(); // Para evitar duplicados
-
+  let flag = true;
   let page = 1;
   let totalProductos = Infinity; // Inicialmente lo ponemos infinito
   let productosProcesados = 0;
@@ -27,19 +27,22 @@ exports.maxiconsumoTemplate = async (slug,type) => {
 
       const $ = cheerio.load(data);
 
-      // 📌 Detectar cuántos productos hay en total (ej: "de 1652")
-const toolbarText = $("#toolbar-amount").text().trim();
-const match = toolbarText.match(/de\s+(\d+)/);
-if (match) {
-  totalProductos = parseInt(match[1], 10);
-} else {
-  // Busca el último número del string (más seguro)
-  const numbers = toolbarText.match(/\d+/g);
-  if (numbers && numbers.length > 0) {
-    totalProductos = parseInt(numbers[numbers.length - 1], 10);
-  }
-}
-
+      if(flag)
+      {
+        // 📌 Detectar cuántos productos hay en total (ej: "de 1652")
+        const toolbarText = $("#toolbar-amount").text().trim();
+        const match = toolbarText.match(/de\s+(\d+)/);
+        if (match) {
+          totalProductos = parseInt(match[1], 10);
+        } else {
+          // Busca el último número del string (más seguro)
+          const numbers = toolbarText.match(/\d+/g);
+          if (numbers && numbers.length > 0) {
+            totalProductos = parseInt(numbers[numbers.length - 1], 10);
+          }
+        }
+        flag = false;
+      }
       // 📌 Capturar productos
       const items = $("[id^=product-item-info]");
       if (items.length === 0) {
@@ -47,19 +50,16 @@ if (match) {
         break;
       }
 
+      let nuevos = 0;
       items.each((_, el) => {
         const titleEl = $(el).find("a.product-item-link");
         const title = titleEl.text().trim();
         const link = titleEl.attr("href");
-
         const priceText = $(el).find("span.price").first().text().trim();
         const price = parseFloat(
           priceText.replace("$", "").replace(/\./g, "").replace(",", ".")
         );
-
         const img = $(el).find("img.product-image-photo").attr("src");
-
-        // Generar clave única para evitar duplicados
         const key = `${title}-${price}`;
         if (seen.has(key)) return;
         seen.add(key);
@@ -74,7 +74,14 @@ if (match) {
         });
 
         productosProcesados++;
+        nuevos++;
       });
+
+      // 🚨 Si no se agregó ningún producto nuevo, cortamos el bucle
+      if (nuevos === 0) {
+        console.log("🔁 Todos los productos de esta página ya fueron vistos. Cortando paginación.");
+        break;
+      }
 
       console.log(
         `✅ Página ${page} procesada. Total productos hasta ahora: ${productos.length}/${totalProductos}`

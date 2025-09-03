@@ -1,7 +1,7 @@
 const fs = require('fs');
 const { saveScrapeProduct } = require('../services/scrapping/saveScrapping');
-const { getAllArticles } = require('../services/scrapping/getAllArticles');
-const {allCarrefourData} = require('../services/scrapping/carrefour/allCarrefourData');
+const { allCarrefourData } = require('../services/scrapping/carrefour/allCarrefourData');
+const {getAllArticles} = require("../services/scrapping/getAllArticles");
 
 async function scrapeProductController(req, res) {
   try {
