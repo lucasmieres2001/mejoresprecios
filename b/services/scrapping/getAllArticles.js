@@ -11,6 +11,8 @@ const {allModeloData} = require('../scrapping/modelo/allModeloData');
 const {allAnonimaData} = require('../scrapping/anonima/allAnonimaData');
 const {allMaxiconsumoData} = require('../scrapping/maxiconsumo/allMaxiconsumoData'); //Está construido, debemos probar
 const { allMasData } = require("./mas/allMasData");
+const {allMakroData} = require("./makro/allMakroData");
+const {allLibertadData} = require("./libertad/allLibertadData");
 
 exports.getAllArticles = async () => {
   try {
@@ -27,7 +29,9 @@ exports.getAllArticles = async () => {
       allDiscoData(),
       allModeloData(),
       allAnonimaData(),
-      allMaxiconsumoData()
+      allMaxiconsumoData(),
+      allMakroData(),
+      allLibertadData()
     ]);
 
   
