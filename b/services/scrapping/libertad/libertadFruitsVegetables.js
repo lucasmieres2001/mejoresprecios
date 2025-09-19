@@ -26,13 +26,15 @@ exports.libertadFruitsVegetables = async () => {
         const price = item?.sellers?.[0]?.commertialOffer?.Price;
         const img = item?.images?.[0]?.imageUrl;
         const title = product.productName;
-
+        const url = product.link;
+        
         if (!seenIds.has(product.productId) && price && img && title) {
           seenIds.add(product.productId);
           allProducts.push({
             title,
             price,
             img,
+            url,
             distributor: "libertad",
             product: inferProductType(title, 'fruits')
           });

@@ -26,6 +26,7 @@ exports.libertadPets = async () => {
         const price = item?.sellers?.[0]?.commertialOffer?.Price;
         const img = item?.images?.[0]?.imageUrl;
         const title = product.productName;
+        const url = product.link;
 
         if (!seenIds.has(product.productId) && price && img && title) {
           seenIds.add(product.productId);
@@ -33,6 +34,7 @@ exports.libertadPets = async () => {
             title,
             price,
             img,
+            url,
             distributor: "libertad",
             product: inferProductType(title, 'pets')
           });

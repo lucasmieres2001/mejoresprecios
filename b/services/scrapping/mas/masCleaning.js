@@ -21,6 +21,7 @@ function processChunk(data, seenIds) {
       const img = item?.images?.[0]?.imageUrl;
       const title = product.productName?.trim();
       const productId = product.productId;
+      const url = product.link.includes('http') ? product.link : `https://www.masonline.com.ar${product.link}`;
 
       if (!productId || seenIds.has(productId)) continue;
       if (!price || !img || !title) continue;
@@ -30,6 +31,7 @@ function processChunk(data, seenIds) {
         title,
         price,
         img,
+        url,
         distributor: "mas",
         product: inferProductType(title, 'cleaning')
       });

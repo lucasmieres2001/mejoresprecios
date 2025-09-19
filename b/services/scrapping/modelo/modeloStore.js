@@ -72,11 +72,11 @@ exports.modeloStore = async () => {
 // 🔹 Función para parsear el HTML de los productos
 function extractProductsFromHTML(html, seenIds) {
   const products = [];
-  const regex = /data-product="(\d+)".*?<img.*?data-src=(.*?)\s.*?alt="(.*?)".*?class="amount">\s*\$([\d\.,]+)/gs;
+  const regex = /<a href="(\/shop\/product\/[^"]+)".*?data-product="(\d+)".*?<img.*?data-src=(.*?)\s.*?alt="(.*?)".*?class="amount">\s*\$([\d\.,]+)/gs;
 
   let match;
   while ((match = regex.exec(html)) !== null) {
-    const [ , productId, img, title, priceStr ] = match;
+    const [ , url, productId, img, title, priceStr ] = match;
     const cleanPrice = parseFloat(priceStr.replace(/\./g, "").replace(",", "."));
 
     if (!seenIds.has(productId)) {
@@ -84,6 +84,7 @@ function extractProductsFromHTML(html, seenIds) {
       products.push({
         title: decodeHTMLEntities(title.trim()),
         price: cleanPrice,
+        url: `https://tienda-supermercadomodelo.batitienda.com${url}`,
         img: img.replace(/^\/\//, "https://"),
         distributor: "modelo",
         product: inferProductType(title, "store")

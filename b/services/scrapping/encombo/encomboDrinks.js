@@ -45,12 +45,14 @@ exports.encomboDrinks = async () => {
                 const priceDecimal = product.find('.sup').text().trim() || '00';
                 const price = parseFloat(`${priceWhole}.${priceDecimal}`);
                 const img = product.find('.product-image-photo').attr('src') || '';
+                const url = product.find('.product-item-link').attr('href') || '';
                 
                 return {
                     title,
                     price,
                     img,
                     distributor: "encombo",
+                    url,
                     product: inferProductType(title,'store')
                 };
             }).get();

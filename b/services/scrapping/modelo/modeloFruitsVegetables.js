@@ -72,7 +72,7 @@ exports.modeloFruitsVegetables = async () => {
 // 🔹 Función para parsear el HTML de los productos
 function extractProductsFromHTML(html, seenIds) {
   const products = [];
-  const regex = /data-product="(\d+)".*?<img.*?data-src=(.*?)\s.*?alt="(.*?)".*?class="amount">\s*\$([\d\.,]+)/gs;
+  const regex = /<a href="(\/shop\/product\/[^"]+)".*?data-product="(\d+)".*?<img.*?data-src=(.*?)\s.*?alt="(.*?)".*?class="amount">\s*\$([\d\.,]+)/gs;
 
   let match;
   while ((match = regex.exec(html)) !== null) {
@@ -86,7 +86,8 @@ function extractProductsFromHTML(html, seenIds) {
         price: cleanPrice,
         img: img.replace(/^\/\//, "https://"),
         distributor: "modelo",
-        product: inferProductType(title, "fruits")
+        product: inferProductType(title, "fruits"),
+        url: `https://tienda-supermercadomodelo.batitienda.com${url}`
       });
     }
   }
