@@ -1,59 +1,27 @@
-const { diaPets } = require('./diaPets');
-const {diaDrinks} = require('./diaDrinks');
-const { diaMeats } = require('./diaMeats');
-const { diaCleaning } = require('./diaCleaning');
-const {diaDairy} = require('./diaDairy');
-const { diaFruitsVegetables } = require('./diaFruitsVegetables');
-const { diaStore } = require('./diaStore');
+const { diaTemplate } = require('./diaTemplate');
 
 async function allDiaData() {
-    console.time("⏱ Total DIA scrape");
-
-    console.time("  ⏳ Pets");
-    let diaPet = await diaPets();
-    console.timeEnd("  ⏳ Pets");
-
-    console.time("  ⏳ Drinks");
-    let diaDrink = await diaDrinks();
-    console.timeEnd("  ⏳ Drinks");
-
-    console.time("  ⏳ Meats");
-    let diaMeat = await diaMeats();
-    console.timeEnd("  ⏳ Meats");
-
-    console.time("  ⏳ Dairy");
-    let diaDairys = await diaDairy();
-    console.timeEnd("  ⏳ Dairy");
-
-    console.time("  ⏳ Cleaning");
-    let diaCleanings = await diaCleaning();
-    console.timeEnd("  ⏳ Cleaning");
-
-    console.time("  ⏳ Fruits/Veg");
-    let diaFruitVegetable = await diaFruitsVegetables();
-    console.timeEnd("  ⏳ Fruits/Veg");
-
-    console.time("  ⏳ Store");
-    let diaStores = await diaStore();
-    console.timeEnd("  ⏳ Store");
-
-    console.timeEnd("⏱ Total DIA scrape");
-    console.log("*****************************FinDIA******************************************");
+    let getDiaDairy = await diaTemplate('frescos/lacteos','dairy');
+    let getDiaDrinks = await diaTemplate('Bebidas','drinks');
+    let getDiaStore = await diaTemplate('Almacen','store');
+    let getDiaMeats = await diaTemplate('frescos/carniceria','meats');
+    let getDiaFruitsVegetables = await diaTemplate('frescos/frutas-y-verduras','fruits');
+    let getDiaCleaning = await diaTemplate('Limpieza','cleaning');
+    let getDiaPets = await diaTemplate('Mascotas','pets');
+    console.log("**************************FinDia******************************************");
     return {
         dia: {
-            dairy: diaDairys,
-            drinks: diaDrink,
-            store: diaStores,
-            meats: diaMeat,
-            fruitsVegetables: diaFruitVegetable,
-            cleaning: diaCleanings,
-            pets: diaPet
+            dairy: getDiaDairy,
+            drinks: getDiaDrinks,
+            store: getDiaStore,
+            meats: getDiaMeats,
+            fruitsVegetables: getDiaFruitsVegetables,
+            cleaning: getDiaCleaning,
+            pets: getDiaPets
         }
     };
 }
 
-
 module.exports = {
     allDiaData
-}
-
+};
