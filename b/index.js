@@ -5,6 +5,7 @@ const app = express();
 const puerto = process.env.PORT || 8080;
 const productRoutes = require('./routes/scrapping');
 const userRoutes = require('./routes/user');
+const trackingRoutes = require('./routes/tracking');
 const { sequelize, User, Product, Tracking } = require('./models'); // Importa desde models/index.js
 
 // Cors y middleware...
@@ -17,6 +18,7 @@ app.use(express.json());
 
 // Rutas
 app.use('/api/products', productRoutes);
+app.use('/api/tracking', trackingRoutes);
 app.use('/api/user', userRoutes);
 
 // Sincroniza la base de datos
