@@ -4,27 +4,26 @@ const cors = require('cors');
 const app = express();
 const puerto = process.env.PORT || 8080;
 const productRoutes = require('./routes/scrapping');
-const userRoutes = require('./routes/user'); // Importa las rutas de usuario
-const sequelize = require('./config/db'); // Importa la configuración de Sequelize
+const userRoutes = require('./routes/user');
+const { sequelize, User, Product, Tracking } = require('./models'); // Importa desde models/index.js
 
-// Cors
+// Cors y middleware...
 app.use(cors({
     origin: '*',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     allowedHeaders: 'Content-Type, Authorization'
-}))
-
-// Middleware
+}));
 app.use(express.json());
 
 // Rutas
 app.use('/api/products', productRoutes);
 app.use('/api/user', userRoutes);
 
-// Sincroniza la base de datos y luego inicia el servidor
+// Sincroniza la base de datos
 sequelize.sync({ alter: true })
   .then(() => {
     console.log('Base de datos sincronizada');
+    console.log('Tablas creadas:', Object.keys(sequelize.models));
     app.listen(puerto, () => {
       console.log(`Servidor escuchando en http://localhost:${puerto}`);
     });

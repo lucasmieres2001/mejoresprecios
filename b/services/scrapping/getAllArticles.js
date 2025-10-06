@@ -18,20 +18,20 @@ exports.getAllArticles = async () => {
   try {
      return await Promise.all([
       allCarrefourData(),
-      allMasData(),
+      //allMasData(),
       allDiaData(),
       allVeaData(),
       allCotoData(),
       allJumboData(),
-      allEncomboData(),
-      allNeneData(),
-      allMamiData(),
+      //allEncomboData(),
+      //allNeneData(),
+      //allMamiData(),
       allDiscoData(),
-      allModeloData(),
-      allAnonimaData(),
-      allMaxiconsumoData(),
-      allMakroData(),
-      allLibertadData()
+      //allModeloData(),
+      //allAnonimaData(),
+      //allMaxiconsumoData(),
+      //allMakroData(),
+      //allLibertadData()
     ]);
 
   

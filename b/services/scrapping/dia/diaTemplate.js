@@ -29,6 +29,16 @@ exports.diaTemplate = async (slug, tipo) => {
         for (const product of data) {
           const item = product.items?.[0];
           const commertialOffer = item?.sellers?.[0]?.commertialOffer;
+          
+          // VERIFICAR STOCK - clave para filtrar productos con stock
+          const availableQuantity = commertialOffer?.AvailableQuantity;
+          const isAvailable = commertialOffer?.IsAvailable;
+          
+          // Solo procesar productos con stock disponible
+          if (!availableQuantity || availableQuantity <= 0 || !isAvailable) {
+            continue; // Saltar productos sin stock
+          }
+
           let price = commertialOffer?.Price;
           if (
             commertialOffer?.PriceWithoutDiscount &&
@@ -64,7 +74,7 @@ exports.diaTemplate = async (slug, tipo) => {
               url: `${dominio}/${product.linkText}/p`,
               distributor: distribuidor,
               product: inferProductType(title, tipo),
-              
+              stock: availableQuantity // Opcional: incluir cantidad de stock
             });
             nuevos++;
           }
@@ -97,7 +107,7 @@ exports.diaTemplate = async (slug, tipo) => {
       }
     }
 
-    console.log(`✅ ${distribuidor} ${tipo}: ${allProducts.length} productos obtenidos`);
+    console.log(`✅ ${distribuidor} ${tipo}: ${allProducts.length} productos con stock obtenidos`);
     return allProducts;
 
   } catch (err) {

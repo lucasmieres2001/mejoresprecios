@@ -29,6 +29,16 @@ exports.carrefourTemplate = async (slug, tipo) => {
         for (const product of data) {
           const item = product.items?.[0];
           const commertialOffer = item?.sellers?.[0]?.commertialOffer;
+          
+          // VERIFICAR STOCK - esta es la clave
+          const availableQuantity = commertialOffer?.AvailableQuantity;
+          const isAvailable = commertialOffer?.IsAvailable;
+          
+          // Solo procesar productos con stock disponible
+          if (!availableQuantity || availableQuantity <= 0 || !isAvailable) {
+            continue; // Saltar productos sin stock
+          }
+
           let price = commertialOffer?.Price;
           if (
             commertialOffer?.PriceWithoutDiscount &&
@@ -42,7 +52,6 @@ exports.carrefourTemplate = async (slug, tipo) => {
           // Capturar tipo de descuento si existe
           let discountType = null;
           if (commertialOffer?.DiscountHighLight?.length) {
-            // Si es un objeto, intenta extraer el valor del campo correcto
             const raw = commertialOffer.DiscountHighLight[0];
             if (typeof raw === "object" && raw["<Name>k__BackingField"]) {
               discountType = raw["<Name>k__BackingField"];
@@ -59,12 +68,12 @@ exports.carrefourTemplate = async (slug, tipo) => {
             allProducts.push({
               title,
               price,
-              discountType, // <-- aquí se agrega el tipo de descuento si existe
+              discountType,
               img,
               url: `${dominio}/${product.linkText}/p`,
               distributor: distribuidor,
               product: inferProductType(title, tipo),
-              
+              stock: availableQuantity // Opcional: incluir cantidad de stock
             });
             nuevos++;
           }
@@ -97,7 +106,7 @@ exports.carrefourTemplate = async (slug, tipo) => {
       }
     }
 
-    console.log(`✅ ${distribuidor} ${tipo}: ${allProducts.length} productos obtenidos`);
+    console.log(`✅ ${distribuidor} ${tipo}: ${allProducts.length} productos con stock obtenidos`);
     return allProducts;
 
   } catch (err) {

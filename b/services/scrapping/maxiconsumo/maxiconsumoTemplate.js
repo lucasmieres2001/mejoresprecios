@@ -60,6 +60,20 @@ exports.maxiconsumoTemplate = async (slug,type) => {
           priceText.replace("$", "").replace(/\./g, "").replace(",", ".")
         );
         const img = $(el).find("img.product-image-photo").attr("src");
+        
+        // VERIFICAR STOCK - clave para filtrar productos con stock
+        // Buscar indicadores de falta de stock
+        const outOfStockText = $(el).find(".out-of-stock, .stock.unavailable, .actions-primary .out-of-stock").text().toLowerCase();
+        const isOutOfStock = outOfStockText.includes('agotado') || 
+                            outOfStockText.includes('sin stock') || 
+                            outOfStockText.includes('no disponible') ||
+                            $(el).find(".out-of-stock").length > 0;
+        
+        // Si el producto está agotado, saltarlo
+        if (isOutOfStock) {
+          return; // continue en .each
+        }
+
         const key = `${title}-${price}`;
         if (seen.has(key)) return;
         seen.add(key);
@@ -71,6 +85,7 @@ exports.maxiconsumoTemplate = async (slug,type) => {
           url: link,
           distributor: "maxiconsumo",
           product: inferProductType(title, type),
+          // stock: true // Opcional: indicar que tiene stock
         });
 
         productosProcesados++;
@@ -94,6 +109,6 @@ exports.maxiconsumoTemplate = async (slug,type) => {
     }
   }
 
-  console.log(`🔍 Scraping finalizado. Productos totales: ${productos.length}`);
+  console.log(`🔍 Scraping finalizado. Productos con stock: ${productos.length}`);
   return productos;
 };
